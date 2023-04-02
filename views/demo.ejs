@@ -1,0 +1,139 @@
+<script type="text/javascript">
+
+
+
+  var config = {
+    partner_id: 'EHFROeXnHF', //EHFROeXnHF  //8jKJgmY1Qw
+    locale: 'en',
+    env: 'test', // for test env. Change to prod for production deployment
+    onAddToCart: function (products) {
+      // To be filled in by skincaredemo
+      if (Array.isArray(products)) {
+        // Array means we got multiple products (add all to cart)
+        console.log("User clicked add all cart. Adding all products to shopping cart.");
+        console.log(products);
+      } else {
+        // Single object means we got one product (add to cart)
+        console.log("User clicked add to cart. Adding the product to shopping cart.");
+        console.log(products);
+      }
+    },
+    onClose: function () {
+      // User closed modal. Here you could forward them to checkout if they had 
+      // added products (onAddToCart was called before).
+      console.log('User clicked close');
+    },
+    onCheckout: function (data) {
+      // User clicked the checkout button that is visible on results page
+      // after adding one or more products to cart. Redirect to checkout page?
+      console.log('User clicked checkout');
+    },
+    onClickProduct: function (product) {
+      // To be filled in by skincaredemo. 
+      console.log("User clicked info action.");
+      console.log(product);
+      var win = window.open(product.url, '_blank');
+      win.focus();
+    },
+
+    onSendEmail: function (emailData) {
+
+      console.log(emailData);
+      console.log(emailData.email);
+      var userID, a, b, c, d;
+      var trainingCenterId = "c8006fc2-f7f7-4697-8275-deb0a61f4166";
+      // var appointments;
+      // const fetch = require('node-fetch');
+      //const url3 = 'https://api.zenoti.com/v1/appointments?center_id=c8006fc2-f7f7-4697-8275-deb0a61f4166&start_date=2023-04-02&end_date=2023-04-03';
+      //const url4 = 'https://api.zenoti.com/v1/appointments/55f2ed4b-0cc1-4a49-b16e-98b56f8ba481/check_in'      
+      const url = 'https://api.zenoti.com/v1/centers?catalog_enabled=false&expand=working_hours';
+      const url2 = 'https://api.zenoti.com/v1/guests/44f0f0ed-3729-48a6-8a69-723b0e306ef0';
+      var start_date = "2023-04-02";
+      var end_date = "2023-04-03"
+      const url3 = 'https://api.zenoti.com/v1/appointments' + '?center_id=' + trainingCenterId + '&start_date=' + start_date + '&end_date=' + end_date;
+
+
+      function findAppointmentGroupIdByEmail(email, appointments) {
+        for (let i = 0; i < appointments.length; i++) {
+          if (appointments[i].guest.email === email) {
+            return appointments[i].appointment_group_id;
+          }
+        }
+        return null; // If email not found
+      }
+
+      const options = {
+        method: 'GET',
+        headers: {
+          accept: 'application/json',
+          Authorization: 'apikey 08585c35e3234407923489e11f3802889ce08dc1301345d1b046af8874807101'
+        }
+      };
+
+      const options4 = {
+        method: 'PUT',
+        headers: {
+          accept: 'application/json',
+          Authorization: 'apikey 08585c35e3234407923489e11f3802889ce08dc1301345d1b046af8874807101'
+        }
+      };
+
+
+      fetch(url, options)
+        .then(res => res.json())
+        //.then(json => console.log(json))
+        .then(json => {
+          console.log(json);
+          fetch(url2, options)
+            .then(res => res.json())
+            .then(json2 => console.log(json2))
+            .catch(err => console.error('error:' + err));
+        })
+        .catch(err => console.error('error:' + err));
+
+      fetch(url3, options)
+        .then(res => res.json())
+        .then(appointments => {
+          console.log("url3 - " + JSON.stringify(appointments));
+
+          // Example usage
+          // const email = "adityapremi@gmail.com";
+          const appointmentGroupId = findAppointmentGroupIdByEmail(emailData.email, appointments);
+          console.log("appointment group id found is " + JSON.stringify(appointmentGroupId));
+          //const url4 = 'https://api.zenoti.com/v1/appointments/55f2ed4b-0cc1-4a49-b16e-98b56f8ba481/check_in';
+          const url4 = 'https://api.zenoti.com/v1/appointments/' + appointmentGroupId + '/check_in';
+          fetch(url4, options4)
+            .then(res => res.json())
+            .then(json => console.log("response of checkin" + JSON.stringify(json)))
+            .catch(err => console.error('error:' + err));
+
+        })
+        .catch(err => console.error('error:' + err));
+
+    }
+  };
+
+  (function () {
+    var rv = document.createElement('script');
+    rv.src = 'https://d38knilzwtuys1.cloudfront.net/revieve-plugin-v4/revieve-plugin-loader.js';
+    rv.charset = 'utf-8';
+    rv.type = 'text/javascript';
+    rv.async = 'true';
+    rv.onload = rv.onreadystatechange = function () {
+      var rs = this.readyState;
+      if (rs && rs != 'complete' && rs != 'loaded') return;
+      Revieve.Init(config, function () {
+        // Comment out the below line if you want to open the modal
+        // manually when user clicks a certain button or navigates
+        // to certain page.
+        Revieve.API.show();
+      });
+    };
+    var s = document.getElementsByTagName('script')[0];
+    s.parentNode.insertBefore(rv, s);
+  })();
+
+
+
+
+</script>
